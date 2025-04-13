@@ -47,13 +47,6 @@ header {
   gap: 1rem;
 }
 
-.top-container{
-  padding: 0 3rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
 .logo-container {
   width: 40px;
   height: 40px;
@@ -68,13 +61,26 @@ h1 {
   color: var(--white);
 }
 
-/* Main Layout */
 .app-container {
-  display: flex;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 2rem;
+  padding: 0 2rem 2rem;
+}
+
+/* Ajoutez ce nouveau style */
+.main-content-container {
+  display: flex;
   gap: 2rem;
+  margin-top: 1.5rem;
+}
+
+/* Ajustez le top-container */
+.top-container {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 1.5rem;
 }
 
 /* Sidebar Styles */
@@ -471,10 +477,26 @@ a:hover {
 
 /* Responsive */
 @media (max-width: 640px) {
-  .top-container{
-    padding: 0 1.5rem;
-    align-items: flex-start;
+  .app-container {
+    padding: 0 1rem 1rem;
     flex-direction: column;
+  }
+  
+  .main-content-container {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .top-container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+  
+  .filters-sidebar {
+    width: 100%;
+    position: static;
   }
   .country-table {
       overflow: scroll;
@@ -532,16 +554,6 @@ a:hover {
       flex-direction: column;
       align-items: flex-start;
       gap: 1rem;
-  }
-
-  .app-container {
-    flex-direction: column;
-    padding: 1rem;
-  }
-
-  .filters-sidebar {
-      width: 100%;
-      position: static;
   }
 
   .bg-container {

@@ -6,7 +6,7 @@
     <title>Country Page - WorldRanks</title>
     <link rel="stylesheet" href="styles/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="icon" href="assets/images/favicon.ico">
+    <link rel="icon" href="resources/favicon.ico">
 </head>
 <body>
     <header>
@@ -19,17 +19,17 @@
         </div>
     </header>
 
-    <div class="top-container">
-        <div class="results-count">
-            Found <span id="country-count">0</span> countries
-        </div>
-        <div class="search-container">
-            <img src="resources/Search.svg" alt="Search">
-            <input type="text" placeholder="Search by name, region...">
-        </div>
-    </div>
-
     <div class="app-container">
+        <div class="top-container">
+            <div class="results-count">
+                Found <span id="country-count">0</span> countries
+            </div>
+            <div class="search-container">
+                <img src="resources/Search.svg" alt="Search">
+                <input type="text" placeholder="Search by name, region...">
+            </div>
+        </div>
+        <div class="main-content-container">
         <aside class="filters-sidebar">
           <div class="filters-section">
             <h2>Filters</h2>
@@ -79,6 +79,7 @@
                 </table>
             </div>
         </main>
+    </div>
     </div>
 
     <script src="scripts/main.js"></script>
