@@ -10,33 +10,107 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Fetch countries data
     async function fetchCountries() {
-        try {
-            const response = await fetch('https://restcountries.com/v3.1/all');
-            if (!response.ok) throw new Error('Failed to fetch data');
+    const API_URL = 'https://restcountries.com/v3.1/all';
+    const FIELDS = 'name,flags,population,area,region,subregion,unMember,independent,cca3';
+    
+    try {
+        // 1. Vérifier d'abord le cache local
+        const cachedData = localStorage.getItem('countriesData');
+        if (cachedData) {
+            const { data, timestamp } = JSON.parse(cachedData);
             
-            const data = await response.json();
-            
-            // Format data
-            countries = data.map(country => ({
-                name: country.name.common,
-                flag: country.flags?.svg || country.flags?.png || '',
-                population: country.population || 0,
-                area: country.area || 0,
-                region: country.region || '',
-                subregion: country.subregion || '',
-                unMember: country.unMember || false,
-                independent: country.independent || false,
-                cca3: country.cca3
-            }));
-            
-            // Initial sort and render
-            sortCountries('population');
-            updateCountryCount();
-        } catch (error) {
-            console.error('Error:', error);
-            countryList.innerHTML = '<tr><td colspan="4">Failed to load countries. Please try again later.</td></tr>';
+            // Utiliser le cache si moins de 1 heure
+            if (Date.now() - timestamp < 3600000) {
+                processCountryData(data);
+                return;
+            }
         }
+
+        // 2. Configuration de la requête avec timeout
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 8000);
+        
+        const response = await fetch(`${API_URL}?fields=${FIELDS}`, {
+            signal: controller.signal
+        });
+        
+        clearTimeout(timeout);
+
+        // 3. Vérification de la réponse
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status} - ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        
+        // 4. Sauvegarde dans le cache
+        localStorage.setItem('countriesData', JSON.stringify({
+            data: data,
+            timestamp: Date.now()
+        }));
+
+        // 5. Traitement des données
+        processCountryData(data);
+
+    } catch (error) {
+        console.error('Fetch Error:', error);
+        handleFetchError(error);
     }
+}
+
+function processCountryData(data) {
+    countries = data.map(country => ({
+        name: country.name?.common || 'Unknown',
+        flag: country.flags?.svg || country.flags?.png || 'default-flag.svg',
+        population: country.population ?? 0,
+        area: country.area ?? 0,
+        region: country.region || 'Unknown',
+        subregion: country.subregion || '',
+        unMember: country.unMember ?? false,
+        independent: country.independent ?? false,
+        cca3: country.cca3 || 'XXX'
+    }));
+    
+    sortCountries('population');
+    updateCountryCount();
+}
+
+function handleFetchError(error) {
+    // Essayer de récupérer du cache même expiré
+    const cachedData = localStorage.getItem('countriesData');
+    if (cachedData) {
+        const { data } = JSON.parse(cachedData);
+        processCountryData(data);
+        showToast('Using cached data (might be outdated)');
+        return;
+    }
+
+    // Affichage d'une erreur élégante
+    countryList.innerHTML = `
+        <tr>
+            <td colspan="4" class="error-state">
+                <div class="error-content">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ff6b6b">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                    </svg>
+                    <h3>Connection Issue</h3>
+                    <p>We couldn't load country data. ${error.message}</p>
+                    <button class="retry-btn">Try Again</button>
+                </div>
+            </td>
+        </tr>
+    `;
+
+    document.querySelector('.retry-btn').addEventListener('click', fetchCountries);
+}
+
+function showToast(message) {
+    const toast = document.createElement('div');
+    toast.className = 'toast-message';
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+}
     
     // Sort countries
     function sortCountries(criteria) {
